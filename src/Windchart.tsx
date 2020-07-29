@@ -1,28 +1,23 @@
-import React from "react";
-import { PanelProps } from "@grafana/data";
-import { SimpleOptions } from "types";
-import { css, cx } from "emotion";
-import { stylesFactory, useTheme } from "@grafana/ui";
+import React from 'react';
+import { PanelProps } from '@grafana/data';
+import { SimpleOptions } from 'types';
+import { css, cx } from 'emotion';
+import { stylesFactory, useTheme } from '@grafana/ui';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
-export const Windchart: React.FC<Props> = ({
-  options,
-  data,
-  width,
-  height,
-}) => {
+export const Windchart: React.FC<Props> = ({ options, data, width, height }) => {
   const theme = useTheme();
   const styles = getStyles(theme);
 
-  const dir = data.series.map((s) => s.fields.find((f) => f.name === "dir"))[0]
-    ?.values.toArray();
+  const dir = data.series.map(s => s.fields.find(f => f.name === 'dir'))[0]?.values.toArray();
 
-  const mph = data.series.map((s) => s.fields.find((f) => f.name === "mps"))[0]
-    ?.values.toArray().map((v) => Number((v * 2.237).toFixed(1)));
+  const mph = data.series
+    .map(s => s.fields.find(f => f.name === 'mps'))[0]
+    ?.values.toArray()
+    .map(v => Number((v * 2.237).toFixed(1)));
 
   const maxMph = Math.max(...mph);
-  const minMph = Math.min(...mph);
 
   console.log(dir, mph);
 
@@ -33,33 +28,15 @@ export const Windchart: React.FC<Props> = ({
         css`
           width: ${width}px;
           height: ${height}px;
-        `,
+        `
       )}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 512 512"
-        height={height}
-        width={width}
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" height={height} width={width}>
         <defs>
           <path id="hash" d="M 250 3 L 256 29 L 262 3 Z" fill="black" />
-          <line
-            id="line"
-            x1="256"
-            y1="32"
-            x2="256"
-            y2="480"
-            className={styles.line}
-          />
+          <line id="line" x1="256" y1="32" x2="256" y2="480" className={styles.line} />
           <mask id="hash-mask">
-            <circle
-              cx="256"
-              cy="256"
-              r="240"
-              stroke="white"
-              stroke-width="32px"
-            />
+            <circle cx="256" cy="256" r="240" stroke="white" stroke-width="32px" />
 
             <g>
               <text x="243" y="30" fill="black" className={styles.text}>
@@ -100,38 +77,33 @@ export const Windchart: React.FC<Props> = ({
         {/* <use href="#line" transform="rotate(135, 256, 256)" /> */}
         <use href="#line" transform="rotate(157.5, 256, 256)" />
 
-        <circle
-          className={styles.face}
-          id="face"
-          cx="256"
-          cy="256"
-          r="240"
-          mask="url(#hash-mask)"
-        />
+        <circle className={styles.face} id="face" cx="256" cy="256" r="240" mask="url(#hash-mask)" />
         <g>
-          {dir?.map((d, i) =>
+          {dir?.map((d, i) => (
             <circle
-              cx={256 +
-                ((220 / maxMph) * mph[i] *
-                  Math.cos((d - 90) * (Math.PI / 180)))}
-              cy={256 +
-                ((220 / maxMph) * mph[i] *
-                  Math.sin((d - 90) * (Math.PI / 180)))}
+              cx={
+                256 +
+                //@ts-ignore
+                (220 / maxMph) * mph[i] * Math.cos((d - 90) * (Math.PI / 180))
+              }
+              cy={
+                256 +
+                //@ts-ignore
+                (220 / maxMph) * mph[i] * Math.sin((d - 90) * (Math.PI / 180))
+              }
               r={3}
               fill={theme.palette.orange}
-              style={{ fillOpacity: (1 - (1 / dir.length) * i) }}
+              style={{ fillOpacity: 1 - (1 / dir.length) * i }}
             />
-          )}
+          ))}
         </g>
       </svg>
-      <div className={styles.velocityLegend}>
-        Max: {maxMph}mph
-      </div>
+      <div className={styles.velocityLegend}>Max: {maxMph}mph</div>
     </div>
   );
 };
 
-const getStyles = stylesFactory((theme) => {
+const getStyles = stylesFactory(theme => {
   return {
     wrapper: css`
       position: relative;
@@ -163,7 +135,7 @@ const getStyles = stylesFactory((theme) => {
     text: css`
       fill: black;
       font-weight: bold;
-      font-family: "Courier New", Courier, monospace;
+      font-family: 'Courier New', Courier, monospace;
       font-size: 3rem;
     `,
     velocityLegend: css`
