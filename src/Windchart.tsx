@@ -19,8 +19,6 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
 
   const maxMph = Math.max(...mph);
 
-  console.log(dir, mph);
-
   return (
     <div
       className={cx(
