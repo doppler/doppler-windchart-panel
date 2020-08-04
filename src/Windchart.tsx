@@ -19,6 +19,16 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
 
   const maxMph = Math.max(...mph);
 
+  const ringRadii = Array.from({ length: Math.floor(maxMph) })
+    .map((_, i) => {
+      if (i % 5 === 0) {
+        return i;
+      }
+      return undefined;
+    })
+    .filter(v => v !== undefined)
+    .slice(1);
+
   return (
     <div
       className={cx(
@@ -95,6 +105,12 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
             />
           ))}
         </g>
+        <g>
+          {ringRadii.map(i => (
+            //@ts-ignore
+            <circle cx={256} cy={256} r={(220 / maxMph) * i} className={styles.ring} />
+          ))}
+        </g>
       </svg>
       <div className={styles.velocityLegend}>Max: {maxMph}mph</div>
     </div>
@@ -103,6 +119,11 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
 
 const getStyles = stylesFactory(theme => {
   return {
+    ring: css`
+      fill: transparent;
+      stroke: ${theme.palette.yellow};
+      stroke-width: 1;
+    `,
     wrapper: css`
       position: relative;
     `,
