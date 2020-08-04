@@ -6,6 +6,13 @@ import { stylesFactory, useTheme } from '@grafana/ui';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
+const hueForSpeed = (mph: number) => {
+  if (mph >= 25) {
+    return -82.5;
+  }
+  return 230 - Number(mph) * 12.5;
+};
+
 export const Windchart: React.FC<Props> = ({ options, data, width, height }) => {
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -87,6 +94,23 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
 
         <circle className={styles.face} id="face" cx="256" cy="256" r="240" mask="url(#hash-mask)" />
         <g>
+          {ringRadii.map(i => (
+            //@ts-ignore
+            <circle
+              cx={256}
+              cy={256}
+              //@ts-ignore
+              r={(220 / maxMph) * i}
+              style={{
+                fill: 'transparent',
+                //@ts-ignore
+                stroke: `hsl(${hueForSpeed(i)}, 100%, 50%)`,
+                strokeWidth: 1,
+              }}
+            />
+          ))}
+        </g>
+        <g>
           {dir?.map((d, i) => (
             <circle
               cx={
@@ -100,30 +124,34 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
                 (220 / maxMph) * mph[i] * Math.sin((d - 90) * (Math.PI / 180))
               }
               r={3}
-              fill={theme.palette.orange}
-              style={{ fillOpacity: 1 - (1 / dir.length) * i }}
+              style={{
+                //@ts-ignore
+                fill: `hsl(${hueForSpeed(mph[i])}, 100%, 50%)`,
+                fillOpacity: 1 - (1 / dir.length) * i,
+              }}
             />
           ))}
         </g>
-        <g>
-          {ringRadii.map(i => (
-            //@ts-ignore
-            <circle cx={256} cy={256} r={(220 / maxMph) * i} className={styles.ring} />
-          ))}
-        </g>
       </svg>
-      <div className={styles.velocityLegend}>Max: {maxMph}mph</div>
+      <div className={styles.speedLegend}>
+        {[0, 5, 10, 15, 20, 25].map(i => (
+          <span
+            style={{
+              color: `hsl(${hueForSpeed(i)}, 100%, 50%)`,
+              flexGrow: 1,
+              textAlign: 'center',
+            }}
+          >
+            {i}
+          </span>
+        ))}
+      </div>
     </div>
   );
 };
 
 const getStyles = stylesFactory(theme => {
   return {
-    ring: css`
-      fill: transparent;
-      stroke: ${theme.palette.yellow};
-      stroke-width: 1;
-    `,
     wrapper: css`
       position: relative;
     `,
@@ -132,24 +160,10 @@ const getStyles = stylesFactory(theme => {
       top: 0;
       left: 0;
     `,
-    direction: css`
-      fill: black;
-    `,
-    directionIndicator: css`
-      fill: ${theme.palette.orange};
-      transform-origin: 256px 256px;
-      transform: rotate(0deg);
-    `,
     face: css`
       fill: none;
       stroke: ${theme.palette.yellow};
       stroke-width: 32px;
-    `,
-    centerCircle: css`
-      fill: ${theme.colors.bg1};
-    `,
-    velocityText: css`
-      fill: ${theme.palette.yellow};
     `,
     text: css`
       fill: black;
@@ -157,16 +171,21 @@ const getStyles = stylesFactory(theme => {
       font-family: 'Courier New', Courier, monospace;
       font-size: 3rem;
     `,
-    velocityLegend: css`
+    line: css`
+      stroke: darkgrey;
+      stroke-width: 1px;
+    `,
+    ring: css`
+      fill: transparent;
+      stroke: ${theme.palette.yellow};
+      stroke-width: 1;
+    `,
+    speedLegend: css`
       position: absolute;
       left: 0;
       bottom: 0;
-      color: ${theme.palette.orange};
-      font-weight: bold;
-    `,
-    line: css`
-      stroke: ${theme.palette.yellow};
-      stroke-width: 1px;
+      width: 100%;
+      display: flex;
     `,
   };
 });
