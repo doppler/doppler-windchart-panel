@@ -24,6 +24,9 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
     ?.values.toArray()
     .map(v => Number((v * 2.237).toFixed(1)));
 
+  const currentMph: number = (mph && mph[0]) || 0;
+  const currentDir: number = (dir && dir[0]) || 0;
+
   const maxMph = Math.max(...mph);
 
   const ringRadii = Array.from({ length: Math.floor(maxMph) })
@@ -127,6 +130,33 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
             />
           ))}
         </g>
+
+        <path
+          className={styles.directionIndicator}
+          id="directionIndicator"
+          d="M 258 35 L 260 256 L 314 314 L 256 480 L 197 314 L 252 256 L 254 35 Z"
+          style={{ transform: `rotate(${currentDir}deg)` }}
+        />
+
+        <circle
+          className={cx(
+            styles.centerCircle,
+            css`
+              opacity: 0.85;
+            `
+          )}
+          id="centerCircle"
+          cx="256"
+          cy="256"
+          r="82.9"
+        />
+
+        <text className={styles.velocityText} id="velocityText" x="256" y="266">
+          {Math.round(currentMph)}
+        </text>
+        <text className={styles.velocityLegend} x="256" y="325">
+          {currentDir}°
+        </text>
       </svg>
       <div className={styles.speedLegend}>
         {[0, 5, 10, 15, 20, 25].map(i => (
@@ -163,6 +193,23 @@ const getStyles = stylesFactory(theme => {
       stroke: ${theme.palette.yellow};
       stroke-width: 32px;
     `,
+    centerCircle: css`
+      fill: ${theme.colors.bg1};
+      fill-opacity: 0.5;
+    `,
+    velocityText: css`
+      font-size: 9rem;
+      fill: ${theme.palette.yellow};
+      font-weight: bold;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    `,
+    velocityLegend: css`
+      fill: ${theme.palette.yellow};
+      font-size: 1.5em;
+      font-weight: bold;
+      text-anchor: middle;
+    `,
     text: css`
       fill: grey;
       font-weight: bold;
@@ -184,6 +231,13 @@ const getStyles = stylesFactory(theme => {
       bottom: 0;
       width: 100%;
       display: flex;
+    `,
+    directionIndicator: css`
+      fill: transparent;
+      stroke: ${theme.palette.orange};
+      stroke-width: 3px;
+      transform-origin: 256px 256px;
+      transform: rotate(0deg);
     `,
   };
 });
