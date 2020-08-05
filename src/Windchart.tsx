@@ -151,7 +151,16 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
           r="82.9"
         />
 
-        <text className={styles.velocityText} id="velocityText" x="256" y="266">
+        <text
+          className={styles.velocityText}
+          style={{
+            stroke: `hsl(${hueForSpeed(currentMph)}, 100%, 50%)`,
+            fill: `hsla(${hueForSpeed(currentMph)}, 100%, 50%, 0.25)`,
+          }}
+          id="velocityText"
+          x="256"
+          y="266"
+        >
           {Math.round(currentMph)}
         </text>
         <text className={styles.velocityLegend} x="256" y="325">
@@ -198,14 +207,14 @@ const getStyles = stylesFactory(theme => {
       fill-opacity: 0.5;
     `,
     velocityText: css`
+      stroke-width: 3;
       font-size: 9rem;
-      fill: ${theme.palette.yellow};
       font-weight: bold;
       text-anchor: middle;
       dominant-baseline: middle;
     `,
     velocityLegend: css`
-      fill: ${theme.palette.yellow};
+      fill: ${theme.palette.orange};
       font-size: 1.5em;
       font-weight: bold;
       text-anchor: middle;
