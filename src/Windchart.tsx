@@ -1,8 +1,8 @@
-import React from 'react';
-import { PanelProps } from '@grafana/data';
-import { SimpleOptions } from 'types';
-import { css, cx } from 'emotion';
-import { stylesFactory, useTheme } from '@grafana/ui';
+import React from "react";
+import { PanelProps } from "@grafana/data";
+import { SimpleOptions } from "types";
+import { css, cx } from "emotion";
+import { stylesFactory, useTheme } from "@grafana/ui";
 
 interface Props extends PanelProps<SimpleOptions> {}
 
@@ -13,16 +13,19 @@ const hueForSpeed = (mph: number) => {
   return 230 - Number(mph) * 12.5;
 };
 
-export const Windchart: React.FC<Props> = ({ options, data, width, height }) => {
+export const Windchart: React.FC<Props> = (
+  { options, data, width, height },
+) => {
   const theme = useTheme();
   const styles = getStyles(theme);
 
-  const dir = data.series.map(s => s.fields.find(f => f.name === 'dir'))[0]?.values.toArray();
+  const dir = data.series.map((s) => s.fields.find((f) => f.name === "dir"))[0]
+    ?.values.toArray();
 
   const mph = data.series
-    .map(s => s.fields.find(f => f.name === 'mps'))[0]
+    .map((s) => s.fields.find((f) => f.name === "mps"))[0]
     ?.values.toArray()
-    .map(v => Number((v * 2.237).toFixed(1)));
+    .map((v) => Number((v * 2.237).toFixed(1)));
 
   const currentMph: number = (mph && mph[0]) || 0;
   const currentDir: number = (dir && dir[0]) || 0;
@@ -36,7 +39,7 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
       }
       return undefined;
     })
-    .filter(v => v !== undefined)
+    .filter((v) => v !== undefined)
     .slice(1);
 
   return (
@@ -46,13 +49,29 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
         css`
           width: ${width}px;
           height: ${height}px;
-        `
+        `,
       )}
     >
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" height={height} width={width}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 512 512"
+        height={height}
+        width={width}
+      >
         <defs>
-          <path id="hashmark" d="M 250 3 L 256 29 L 262 3 Z" className={styles.hashmark} />
-          <line id="line" x1="256" y1="32" x2="256" y2="480" className={styles.line} />
+          <path
+            id="hashmark"
+            d="M 250 3 L 256 29 L 262 3 Z"
+            className={styles.hashmark}
+          />
+          <line
+            id="line"
+            x1="256"
+            y1="32"
+            x2="256"
+            y2="480"
+            className={styles.line}
+          />
         </defs>
 
         <g className={styles.text}>
@@ -89,10 +108,15 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
         <use href="#line" transform="rotate(112.5, 256, 256)" />
         <use href="#line" transform="rotate(157.5, 256, 256)" />
 
-        <circle cx={256} cy={256} r={220} style={{ fill: 'transparent', stroke: 'grey', strokeWidth: 1 }} />
+        <circle
+          cx={256}
+          cy={256}
+          r={220}
+          style={{ fill: "transparent", stroke: "grey", strokeWidth: 1 }}
+        />
 
         <g>
-          {ringRadii.map(i => (
+          {ringRadii.map((i) => (
             //@ts-ignore
             <circle
               cx={256}
@@ -100,7 +124,7 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
               //@ts-ignore
               r={(220 / maxMph) * i}
               style={{
-                fill: 'transparent',
+                fill: "transparent",
                 //@ts-ignore
                 stroke: `hsl(${hueForSpeed(i)}, 100%, 50%)`,
                 strokeWidth: 1,
@@ -109,71 +133,69 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
           ))}
         </g>
         <g>
-          {dir?.map((d, i) => (
+          {dir && mph && dir.map((d, i) => (
             <circle
-              cx={
-                256 +
-                //@ts-ignore
-                (220 / maxMph) * mph[i] * Math.cos((d - 90) * (Math.PI / 180))
-              }
-              cy={
-                256 +
-                //@ts-ignore
-                (220 / maxMph) * mph[i] * Math.sin((d - 90) * (Math.PI / 180))
-              }
+              cx={256 +
+                  (220 / maxMph) * mph[i] *
+                    Math.cos((d - 90) * (Math.PI / 180)) || 256}
+              cy={256 +
+                  (220 / maxMph) * mph[i] *
+                    Math.sin((d - 90) * (Math.PI / 180)) || 256}
               r={3}
               style={{
-                //@ts-ignore
                 fill: `hsl(${hueForSpeed(mph[i])}, 100%, 50%)`,
                 fillOpacity: 1 - (1 / dir.length) * i,
               }}
             />
           ))}
         </g>
+        {currentMph > 0 && (
+          <g>
+            <path
+              className={styles.directionIndicator}
+              id="directionIndicator"
+              d="M 258 35 L 260 256 L 314 314 L 256 480 L 197 314 L 252 256 L 254 35 Z"
+              style={{ transform: `rotate(${currentDir}deg)` }}
+            />
 
-        <path
-          className={styles.directionIndicator}
-          id="directionIndicator"
-          d="M 258 35 L 260 256 L 314 314 L 256 480 L 197 314 L 252 256 L 254 35 Z"
-          style={{ transform: `rotate(${currentDir}deg)` }}
-        />
-
-        <circle
-          className={cx(
-            styles.centerCircle,
-            css`
+            <circle
+              className={cx(
+                styles.centerCircle,
+                css`
               opacity: 0.85;
-            `
-          )}
-          id="centerCircle"
-          cx="256"
-          cy="256"
-          r="82.9"
-        />
+            `,
+              )}
+              id="centerCircle"
+              cx="256"
+              cy="256"
+              r="82.9"
+            />
 
-        <text
-          className={styles.velocityText}
-          style={{
-            stroke: `hsl(${hueForSpeed(currentMph)}, 100%, 50%)`,
-            fill: `hsla(${hueForSpeed(currentMph)}, 100%, 50%, 0.25)`,
-          }}
-          id="velocityText"
-          x="256"
-          y="266"
-        >
-          {Math.round(currentMph)}
-        </text>
-        <text className={styles.velocityLegend} x="256" y="325">
-          {currentDir}°
-        </text>
+            <text
+              className={styles.velocityText}
+              style={{
+                stroke: `hsl(${hueForSpeed(currentMph)}, 100%, 50%)`,
+                fill: `hsla(${hueForSpeed(currentMph)}, 100%, 50%, 0.25)`,
+              }}
+              id="velocityText"
+              x="256"
+              y="266"
+            >
+              {Math.round(currentMph)}
+            </text>
+            <text className={styles.velocityLegend} x="256" y="325">
+              {currentDir}°
+            </text>
+          </g>
+        )}
       </svg>
       <div className={styles.speedLegend}>
-        {[0, 5, 10, 15, 20, 25].map(i => (
+        {[0, 5, 10, 15, 20, 25].map((i) => (
           <span
             style={{
               color: `hsl(${hueForSpeed(i)}, 100%, 50%)`,
               flexGrow: 1,
-              textAlign: 'center',
+              textAlign: "center",
             }}
           >
             {i}
@@ -184,7 +206,7 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
   );
 };
 
-const getStyles = stylesFactory(theme => {
+const getStyles = stylesFactory((theme) => {
   return {
     wrapper: css`
       position: relative;
