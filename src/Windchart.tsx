@@ -135,8 +135,11 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
                 cy={256 + (220 / maxMph) * mph[i] * Math.sin((d - 90) * (Math.PI / 180)) || 256}
                 r={3}
                 style={{
-                  fill: `hsl(${hueForSpeed(mph[i])}, 100%, 50%)`,
-                  fillOpacity: 1 - (1 / dir.length) * i,
+                  fill: `hsla(
+                    ${hueForSpeed(mph[i])},
+                    ${100 - (100 / dir.length) * i}%,
+                    50%,
+                    ${1 - (1 / dir.length) * i})`,
                 }}
               />
             ))}
