@@ -22,7 +22,7 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
   let currentDir = 0;
   let currentMph = 0;
   let maxMph = 5;
-  let ringRadii: any[] = [];
+  let ringRadii: number[] = [];
 
   try {
     //@ts-ignore
@@ -38,20 +38,18 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
 
     maxMph = (mph && Math.max(...mph)) || 5;
 
-    ringRadii = Array.from({ length: Math.floor(maxMph) })
+    ringRadii = Array.from({ length: Math.ceil(maxMph) })
       .map((_, i) => {
         if (i % 5 === 0) {
           return i;
         }
-        return undefined;
+        return -1;
       })
-      .filter(v => v !== undefined)
+      .filter(v => v !== -1)
       .slice(1);
   } catch (e) {
     console.log(e);
   }
-
-  // if (!mph || !dir) return null;
 
   return (
     <div
@@ -196,6 +194,7 @@ export const Windchart: React.FC<Props> = ({ options, data, width, height }) => 
             {i}
           </span>
         ))}
+        <p>{maxMph}</p>
       </div>
     </div>
   );
